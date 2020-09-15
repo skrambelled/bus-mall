@@ -164,5 +164,8 @@ images.addEventListener('click', handleClick);
 numDisplayed = parseInt(prompt('How many products would you like to see at one time?', 3));
 numRounds = parseInt(prompt('How many rounds of voting?', 25));
 
+// create an instance for each object
 generateGlobalProducts();
+
+// generate an initial set of products
 pickRandomProducts();
