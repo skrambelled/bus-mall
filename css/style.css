@@ -1,0 +1,33 @@
+* {
+  border: solid thin black;
+}
+
+body {
+  width: 100vw;
+}
+
+body header {
+  width: 100%;
+  height: 100px;
+  background-color: green;
+}
+
+body main {
+  height: 800px;
+}
+
+body footer {
+  height: 100px;
+  background-color: red;
+}
+
+img {
+  height: 100px;
+  padding: 15px;
+}
+
+#images > div {
+  display: inline-block;
+  height: 100px;
+  margin: 15px;
+}
