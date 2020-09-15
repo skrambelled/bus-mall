@@ -2,7 +2,7 @@
 
 var numDisplayed = 3;
 var numRounds = 25;
-var images = document.getElementById('images');
+var UI = document.getElementById('UI');
 var products = {};
 
 var productsPath = [
@@ -33,22 +33,24 @@ function Product(name, path) {
   this.name = name;
   this.votes = 0;
   this.appearances = 0;
+  this.currentlyShowing = 0;
 
   products[name] = this;
 }
 
 Product.prototype.render = function () {
   var image = document.createElement('img');
-  images.append(image);
+  UI.append(image);
   image.setAttribute('src', 'img/' + this.path);
   image.setAttribute('id', this.name);
+  this.currentlyShowing = 1;
 
   this.appearances++;
 };
 
 Product.prototype.renderResults = function () {
   var imageDiv = document.createElement('div');
-  images.append(imageDiv);
+  UI.append(imageDiv);
 
   var image = document.createElement('img');
   imageDiv.append(image);
@@ -89,32 +91,31 @@ function generateGlobalProducts() {
 }
 
 function pickRandomProducts() {
-  images.innerHTML = null;
+
+  var setToChooseFrom = [];
 
   var keys = Object.keys(products);
-
-  var whichOnes = pickRandomNumbers(numDisplayed, keys.length);
-
-  for (let i = 0; i < whichOnes.length; i++) {
-    products[keys[whichOnes[i]]].render(i);
+  for (let i = 0; i < keys.length; i++) {
+    if (!products[keys[i]].currentlyShowing)
+      setToChooseFrom.push(i);
+    else
+      products[keys[i]].currentlyShowing = 0;
   }
+
+  var whichOnes = pickRandomNumbers(numDisplayed, setToChooseFrom);
+
+  UI.innerHTML = null;
+  for (let i = 0; i < whichOnes.length; i++)
+    products[keys[whichOnes[i]]].render(i);
 }
 
-function pickRandomNumbers(howMany, total) {
-  // First make an array containining 'total' numbers
-  // incrementing from 0 upwards
-  // i.e. if total were 3 => [0,1,2]
-  var num = [];
-  for (let i = 0; i < total; i++) {
-    num.push(i);
-  }
-
-  // now select 'howMany' of those numbers uniquely and randomly
+function pickRandomNumbers(howMany, setToChooseFrom) {
+  // now select 'howMany' of our given set uniquely and randomly
   var luckyDucks = [];
-  while (num.length && howMany) {
-    let rng = Math.floor(Math.random() * num.length);
-    let lucky = num[rng];
-    num.splice(rng, 1);
+  while (setToChooseFrom.length && howMany) {
+    let rng = Math.floor(Math.random() * setToChooseFrom.length);
+    let lucky = setToChooseFrom[rng];
+    setToChooseFrom.splice(rng, 1);
     luckyDucks.push(lucky);
     howMany--;
   }
@@ -124,7 +125,7 @@ function pickRandomNumbers(howMany, total) {
 }
 
 function revealResults() {
-  images.innerHTML = null;
+  UI.innerHTML = null;
 
   var keys = Object.keys(products);
 
@@ -154,17 +155,17 @@ function handleClick(e) {
     pickRandomProducts();
   } else {
     console.log('listener removed');
-    images.removeEventListener('click', handleClick);
+    UI.removeEventListener('click', handleClick);
     revealResults();
   }
 }
 
-images.addEventListener('click', handleClick);
+UI.addEventListener('click', handleClick);
 
 numDisplayed = parseInt(prompt('How many products would you like to see at one time?', 3));
 numRounds = parseInt(prompt('How many rounds of voting?', 25));
 
-// create an instance for each object
+// generate on instance of each product
 generateGlobalProducts();
 
 // generate an initial set of products
