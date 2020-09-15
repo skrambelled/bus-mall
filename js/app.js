@@ -58,6 +58,10 @@ Product.prototype.renderResults = function () {
 
   var data = document.createElement('p');
   imageDiv.append(data);
+  data.textContent = this.name;
+
+  data = document.createElement('p');
+  imageDiv.append(data);
   data.textContent = 'Votes: ' + this.votes;
 
   data = document.createElement('p');
