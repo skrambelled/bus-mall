@@ -1,9 +1,10 @@
 'use strict';
 
 var numDisplayed = 3;
-var numRounds = 25;
+var numRounds = 3;
 var UI = document.getElementById('UI');
 var products = {};
+var results;
 
 var productsPath = [
   'bag.jpg',
@@ -28,6 +29,38 @@ var productsPath = [
   'wine-glass.jpg'
 ];
 
+var cdata = {
+  type: 'bar',
+  data: {
+    labels: [],
+    datasets: [
+      {
+        label: '# of Votes',
+        data: [],
+        backgroundColor: [],
+        borderColor: [],
+        borderWidth: 1
+      },
+      {
+        label: 'popularity',
+        data: [],
+        backgroundColor: [],
+        borderColor: [],
+        borderWidth: 1
+      }
+    ]
+  },
+  options: {
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
+    }
+  }
+};
+
 function Product(name, path) {
   this.path = path;
   this.name = name;
@@ -38,48 +71,19 @@ function Product(name, path) {
   products[name] = this;
 }
 
+Product.prototype.vote = function () {
+  this.votes++;
+};
+
 Product.prototype.render = function () {
   var image = document.createElement('img');
   UI.append(image);
-  image.setAttribute('src', 'img/' + this.path);
-  image.setAttribute('id', this.name);
+  image.src = 'img/' + this.path;
+  image.id = this.name;
+  // image.setAttribute('style', 'width: ' + (numDisplayed % 3) + ';');
   this.currentlyShowing = 1;
 
   this.appearances++;
-};
-
-Product.prototype.renderResults = function () {
-  var imageDiv = document.createElement('div');
-  UI.append(imageDiv);
-
-  var image = document.createElement('img');
-  imageDiv.append(image);
-
-  image.setAttribute('src', 'img/' + this.path);
-  image.setAttribute('id', this.name);
-
-  var data = document.createElement('p');
-  imageDiv.append(data);
-  data.textContent = this.name;
-
-  data = document.createElement('p');
-  imageDiv.append(data);
-  data.textContent = 'Votes: ' + this.votes;
-
-  data = document.createElement('p');
-  imageDiv.append(data);
-  data.textContent = 'Appearances: ' + this.appearances;
-
-  data = document.createElement('p');
-  imageDiv.append(data);
-  if (this.appearances)
-    data.textContent = 'Popularity: ' + Math.round(100 * this.votes / this.appearances) + '%';
-  else
-    data.textContent = 'Popularity: (did not appear)';
-};
-
-Product.prototype.vote = function () {
-  this.votes++;
 };
 
 function generateGlobalProducts() {
@@ -127,11 +131,43 @@ function pickRandomNumbers(howMany, setToChooseFrom) {
 function revealResults() {
   UI.innerHTML = null;
 
+  // make a canvas element
+  var container = document.createElement('div');
+  UI.append(container);
+
+  container.id = 'chart-container';
+
+  var chart = document.createElement('canvas');
+  container.append(chart);
+  chart.id = 'myChart';
+  chart.maintainAspectRatio = false;
+
+  // make a chart
+  var context = document.getElementById('myChart').getContext('2d');
+  results = new Chart(context, cdata);
   var keys = Object.keys(products);
 
+  console.log(cdata);
+  // populate the chart
   for (let i = 0; i < keys.length; i++) {
-    products[keys[i]].renderResults();
+    let product = products[keys[i]];
+    let hue = Math.floor(i / productsPath.length * 360);
+    console.log('hue : ' + hue);
+
+    console.log(product.name + ' : ' + product.votes);
+    chartAddProduct(product.name, product.votes, product.appearances, hue);
   }
+  results.update();
+}
+
+function chartAddProduct(name, votes, appearances, hue) {
+  results.data.labels.push(name);
+  results.data.datasets[0].data.push(votes);
+  results.data.datasets[0].backgroundColor.push('hsla(' + hue + ', 100%, 50%, 0.2)');
+  results.data.datasets[0].borderColor.push('hsla(' + hue + ', 100%, 50%, 1)');
+  results.data.datasets[1].data.push(appearances);
+  results.data.datasets[1].backgroundColor.push('hsla(' + hue + ', 100%, 50%, 0.2)');
+  results.data.datasets[1].borderColor.push('hsla(' + hue + ', 100%, 50%, 1)');
 }
 
 function handleClick(e) {
