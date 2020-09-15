@@ -71,7 +71,7 @@ Product.prototype.renderResults = function () {
   data = document.createElement('p');
   imageDiv.append(data);
   if (this.appearances)
-    data.textContent = 'Popularity: ' + Math.round(100 * this.votes / this.appearances) + "%";
+    data.textContent = 'Popularity: ' + Math.round(100 * this.votes / this.appearances) + '%';
   else
     data.textContent = 'Popularity: (did not appear)';
 };
@@ -161,8 +161,8 @@ function handleClick(e) {
 
 images.addEventListener('click', handleClick);
 
-numDisplayed = prompt('How many products would you like to see at one time?', 3);
-numRounds = prompt('How many rounds of voting?', 25);
+numDisplayed = parseInt(prompt('How many products would you like to see at one time?', 3));
+numRounds = parseInt(prompt('How many rounds of voting?', 25));
 
 generateGlobalProducts();
 pickRandomProducts();
