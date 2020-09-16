@@ -69,8 +69,8 @@ var cdata = {
 };
 
 function Product(name, path) {
-  this.path = path;
   this.name = name;
+  this.path = path;
   this.votes = 0;
   this.appearances = 0;
   this.currentlyShowing = 0;
@@ -115,11 +115,11 @@ function pickRandomProducts() {
       products[keys[i]].currentlyShowing = 0;
   }
 
-  var whichOnes = pickRandomNumbers(numDisplayed, setToChooseFrom);
+  var luckyDucks = pickRandomNumbers(numDisplayed, setToChooseFrom);
 
   UI.innerHTML = null;
-  for (let i = 0; i < whichOnes.length; i++)
-    products[keys[whichOnes[i]]].render(i);
+  for (let i = 0; i < luckyDucks.length; i++)
+    products[keys[luckyDucks[i]]].render();
 }
 
 function pickRandomNumbers(howMany, setToChooseFrom) {
@@ -127,9 +127,8 @@ function pickRandomNumbers(howMany, setToChooseFrom) {
   var luckyDucks = [];
   while (setToChooseFrom.length && howMany) {
     let rng = Math.floor(Math.random() * setToChooseFrom.length);
-    let lucky = setToChooseFrom[rng];
+    luckyDucks.push(setToChooseFrom[rng]);
     setToChooseFrom.splice(rng, 1);
-    luckyDucks.push(lucky);
     howMany--;
   }
 
@@ -175,7 +174,7 @@ function chartAddProduct(name, votes, appearances, hue) {
   results.data.datasets[0].data.push(votes);
   results.data.datasets[0].backgroundColor.push('hsla(' + hue + ', 100%, 50%, 0.2)');
   results.data.datasets[0].borderColor.push('hsla(' + hue + ', 100%, 50%, 1)');
-  results.data.datasets[1].data.push(votes);
+  results.data.datasets[1].data.push(appearances);
   results.data.datasets[1].backgroundColor.push('hsla(' + (hue + 120) + ', 100%, 50%, 0.2)');
   results.data.datasets[1].borderColor.push('hsla(' + (hue + 120) + ', 100%, 50%, 1)');
   results.data.datasets[2].data.push(votes / appearances);
