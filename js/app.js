@@ -42,6 +42,13 @@ var cdata = {
         borderWidth: 1
       },
       {
+        label: 'appearances',
+        data: [],
+        backgroundColor: [],
+        borderColor: [],
+        borderWidth: 1
+      },
+      {
         label: 'popularity',
         data: [],
         backgroundColor: [],
@@ -80,6 +87,8 @@ Product.prototype.render = function () {
   UI.append(image);
   image.src = 'img/' + this.path;
   image.id = this.name;
+  image.width = document.documentElement.clientWidth / (numDisplayed * 2);
+  // image.height = document.documentElement.clientheight / numDisplayed;
   // image.setAttribute('style', 'width: ' + (numDisplayed % 3) + ';');
   this.currentlyShowing = 1;
 
@@ -140,7 +149,8 @@ function revealResults() {
   var chart = document.createElement('canvas');
   container.append(chart);
   chart.id = 'myChart';
-  chart.maintainAspectRatio = false;
+  chart.responsive = false;
+  chart.maintainAspectRatio = true;
 
   // make a chart
   var context = document.getElementById('myChart').getContext('2d');
@@ -151,7 +161,7 @@ function revealResults() {
   // populate the chart
   for (let i = 0; i < keys.length; i++) {
     let product = products[keys[i]];
-    let hue = Math.floor(i / productsPath.length * 360);
+    let hue = Math.floor(i / productsPath.length * 40);
     console.log('hue : ' + hue);
 
     console.log(product.name + ' : ' + product.votes);
@@ -165,9 +175,12 @@ function chartAddProduct(name, votes, appearances, hue) {
   results.data.datasets[0].data.push(votes);
   results.data.datasets[0].backgroundColor.push('hsla(' + hue + ', 100%, 50%, 0.2)');
   results.data.datasets[0].borderColor.push('hsla(' + hue + ', 100%, 50%, 1)');
-  results.data.datasets[1].data.push(appearances);
-  results.data.datasets[1].backgroundColor.push('hsla(' + hue + ', 100%, 50%, 0.2)');
-  results.data.datasets[1].borderColor.push('hsla(' + hue + ', 100%, 50%, 1)');
+  results.data.datasets[1].data.push(votes);
+  results.data.datasets[1].backgroundColor.push('hsla(' + (hue + 120) + ', 100%, 50%, 0.2)');
+  results.data.datasets[1].borderColor.push('hsla(' + (hue + 120) + ', 100%, 50%, 1)');
+  results.data.datasets[2].data.push(votes / appearances);
+  results.data.datasets[2].backgroundColor.push('hsla(' + (hue + 220) + ', 100%, 50%, 0.2)');
+  results.data.datasets[2].borderColor.push('hsla(' + (hue + 220) + ', 100%, 50%, 1)');
 }
 
 function handleClick(e) {
