@@ -4,6 +4,7 @@ var numDisplayed = 3;
 var numRounds = 3;
 var UI = document.getElementById('UI');
 var products = {};
+var persistentProducts = {};
 var results;
 
 var productsPath = [
@@ -29,7 +30,46 @@ var productsPath = [
   'wine-glass.jpg'
 ];
 
-var cdata = {
+var productsData = {
+  type: 'bar',
+  data: {
+    labels: [],
+    datasets: [
+      {
+        label: '# of Votes',
+        data: [],
+        backgroundColor: [],
+        borderColor: [],
+        borderWidth: 1
+      },
+      {
+        label: 'appearances',
+        data: [],
+        backgroundColor: [],
+        borderColor: [],
+        borderWidth: 1
+      },
+      {
+        label: 'popularity',
+        data: [],
+        backgroundColor: [],
+        borderColor: [],
+        borderWidth: 1
+      }
+    ]
+  },
+  options: {
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
+    }
+  }
+};
+
+var persistentProductsData = {
   type: 'bar',
   data: {
     labels: [],
@@ -78,10 +118,6 @@ function Product(name, path) {
   products[name] = this;
 }
 
-Product.prototype.vote = function () {
-  this.votes++;
-};
-
 Product.prototype.render = function () {
   var image = document.createElement('img');
   UI.append(image);
@@ -101,6 +137,16 @@ function generateGlobalProducts() {
     let name = path.split('.')[0];
     new Product(name, path);
   }
+
+  var keys = Object.keys(localStorage);
+
+  if (keys.includes('persistentProducts'))
+    persistentProducts = JSON.parse(localStorage.getItem('persistentProducts'));
+  else
+    // make a copy of the object, probably a better way to do this.
+    // Just want to initialize the persistent data, even if
+    // there are no votes or appearances yet.
+    persistentProducts = JSON.parse(JSON.stringify(products));
 }
 
 function pickRandomProducts() {
@@ -136,34 +182,39 @@ function pickRandomNumbers(howMany, setToChooseFrom) {
   return luckyDucks;
 }
 
-function revealResults() {
-  UI.innerHTML = null;
+function getChartData(name) {
+  if (name === 'session')
+    return productsData;
+  if (name === 'persistent')
+    return persistentProductsData;
+}
 
-  // make a canvas element
+function makeChart(chartName, productsDict) {
+  // make a canvas element for this session
   var container = document.createElement('div');
   UI.append(container);
 
-  container.id = 'chart-container';
+  container.id = chartName + '-chart-container';
+  container.class = 'chart-container';
 
   var chart = document.createElement('canvas');
   container.append(chart);
-  chart.id = 'myChart';
+  chart.id = chartName;
   chart.responsive = false;
   chart.maintainAspectRatio = true;
 
   // make a chart
-  var context = document.getElementById('myChart').getContext('2d');
-  results = new Chart(context, cdata);
-  var keys = Object.keys(products);
+  var context = chart.getContext('2d');
+  results = new Chart(context, getChartData(chartName));
+  var keys = Object.keys(productsDict);
 
-  console.log(cdata);
+  // console.log(getChartData(chartName));
   // populate the chart
   for (let i = 0; i < keys.length; i++) {
-    let product = products[keys[i]];
+    let product = productsDict[keys[i]];
     let hue = Math.floor(i / productsPath.length * 40);
-    console.log('hue : ' + hue);
 
-    console.log(product.name + ' : ' + product.votes);
+    // console.log(product.name + ' : ' + product.votes);
     chartAddProduct(product.name, product.votes, product.appearances, hue);
   }
   results.update();
@@ -182,8 +233,21 @@ function chartAddProduct(name, votes, appearances, hue) {
   results.data.datasets[2].borderColor.push('hsla(' + (hue + 220) + ', 100%, 50%, 1)');
 }
 
-function handleClick(e) {
+function mergeProducts() {
+  var keys = Object.keys(products);
 
+  // console.log(products);
+  console.log(persistentProducts);
+
+  for (let i = 0; i < keys.length; i++) {
+    console.log(keys[i]);
+    persistentProducts[keys[i]].votes += products[keys[i]].votes;
+    persistentProducts[keys[i]].appearances += products[keys[i]].appearances;
+  }
+  localStorage.setItem('persistentProducts', JSON.stringify(persistentProducts));
+}
+
+function handleClick(e) {
   var prod_name = e.target.id;
   console.log('list has been clicked', e.target.id);
 
@@ -194,7 +258,7 @@ function handleClick(e) {
     return;
   }
 
-  products[prod_name].vote();
+  products[prod_name].votes++;
   // e.target.vote();
   // pickRandomProducts(numDisplayed);
 
@@ -204,7 +268,10 @@ function handleClick(e) {
   } else {
     console.log('listener removed');
     UI.removeEventListener('click', handleClick);
-    revealResults();
+    mergeProducts();
+    UI.innerHTML = null;
+    makeChart('session', products);
+    makeChart('persistent', persistentProducts);
   }
 }
 

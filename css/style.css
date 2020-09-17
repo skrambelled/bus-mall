@@ -5,30 +5,34 @@
 body {
   width: 100vw;
   height: 100vh;
+  margin: auto;
 
   font-family: 'Lato', sans-serif;
 }
 
 body header {
   width: 100%;
-  height: 100px;
+  height: 50px;
   background-color:#777777;
 }
 
 body main {
-  height: calc(100% - 200px);
+  height: calc(100% - 100px);
 }
 
 body footer {
-  height: 100px;
+  height: 50px;
   background-color: #777777;
 }
 
 img {
-  padding: 15px;
+  margin: 15px;
+  height: 250px;
+  width:  250px;
 }
 
-#UI {
+#UI { 
+  height: calc(100% - 100px);
   margin:auto;
   width: 80%;
 }
@@ -39,8 +43,12 @@ img {
   margin: 15px;
 }
 
-#chart-container {
-  width: 1000px;
+#session-chart-container {
+  width: 700px;
+}
+
+#persistent-chart-container {
+  width: 700px;
 }
 
 canvas {
