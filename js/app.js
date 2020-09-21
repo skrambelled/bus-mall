@@ -30,6 +30,8 @@ var productsPath = [
   'wine-glass.jpg'
 ];
 
+
+// initial setup for the session bara graph
 var productsData = {
   type: 'bar',
   data: {
@@ -69,6 +71,7 @@ var productsData = {
   }
 };
 
+// initital setup for the aggregrate data bar graph
 var persistentProductsData = {
   type: 'bar',
   data: {
